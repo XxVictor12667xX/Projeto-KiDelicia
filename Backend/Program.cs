@@ -8,6 +8,11 @@ builder.Services.AddDbContext<AplicacaoContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("ConexaoPadrao"))
 );
 
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IAdministradorRepository, AdministradorRepository>();
+
 // Add services to the container.
 
 builder.Services.AddControllers();
