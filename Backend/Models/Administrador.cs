@@ -10,7 +10,6 @@ public class Administrador
 
     [Required]
     [MaxLength(100)]
-
     public string Nome { get; set; } = string.Empty;
 
     [Required]

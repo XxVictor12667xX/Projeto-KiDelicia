@@ -23,6 +23,12 @@ public class ClienteRepository: IClienteRepository
         return await _context.Clientes.FindAsync(id);
     }
 
+    public async Task<Cliente?> GetClienteByName(string nome)
+        {
+            return await _context.Clientes
+                .FirstOrDefaultAsync(c => c.Nome.ToLower() == nome.ToLower());
+        }
+
     public async Task AddCliente(Cliente cliente)
     {
         await _context.Clientes.AddAsync(cliente);

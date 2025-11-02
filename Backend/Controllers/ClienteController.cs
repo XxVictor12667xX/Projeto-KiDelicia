@@ -1,0 +1,76 @@
+using Backend.Models;
+using Microsoft.AspNetCore.Mvc;
+
+
+namespace KiDelicia.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ClienteController : ControllerBase
+    {
+        private readonly IClienteRepository _clienteRepository;
+
+        public ClienteController(IClienteRepository clienteRepository)
+        {
+            _clienteRepository = clienteRepository;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllClientes()
+        {
+            var clientes = await _clienteRepository.GetAllClientes();
+
+            if (clientes is null || !clientes.Any())
+            {
+                return NotFound("Nenhum cliente encontrado.");
+            }
+
+            return Ok(clientes);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetClienteById(int id)
+        {
+            var cliente = await _clienteRepository.GetClienteById(id);
+
+            if (cliente is null)
+            {
+                return NotFound("Cliente não encontrado.");
+            }
+
+            return Ok(cliente);
+        }
+
+        [HttpGet("nome/{nome}")]
+        public async Task<IActionResult> GetClienteByNome(string nome)
+        {
+            var cliente = await _clienteRepository.GetClienteByName(nome);
+
+            if (cliente is null)
+            {
+                return NotFound("Cliente não encontrado.");
+            }
+
+            return Ok(cliente);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCliente([FromBody] Cliente cliente)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _clienteRepository.AddCliente(cliente);
+                return CreatedAtAction(nameof(GetClienteById), new { id = cliente.Id }, cliente);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erro ao criar o cliente: {ex.Message}");
+            }
+        }
+    }
+}

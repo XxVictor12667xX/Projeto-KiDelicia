@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +22,12 @@ public class AdministradorRepository: IAdministradorRepository
         return await _context.Administradores.FindAsync(id);
     }
 
+    public async Task<Administrador?> GetByName(string nome)
+        {
+            return await _context.Administradores
+                .FirstOrDefaultAsync(a => a.Nome.ToLower() == nome.ToLower());
+        }
+
     public async Task AddAdministrador(Administrador administrador)
     {
         await _context.Administradores.AddAsync(administrador);
@@ -31,7 +39,7 @@ public class AdministradorRepository: IAdministradorRepository
         _context.Administradores.Update(administrador);
         await _context.SaveChangesAsync();
     }
-    
+
     public async Task DeleteAdministrador(int id)
     {
         var administrador = await _context.Administradores.FindAsync(id);
@@ -41,5 +49,23 @@ public class AdministradorRepository: IAdministradorRepository
             await _context.SaveChangesAsync();
         }
     }
+    
 
+    public async Task<bool> ValidarLogin(string email, string senha)
+        {
+            var admin = await GetByName(email);
+            if (admin == null) return false;
+
+            var hash = HashSenha(senha);
+            return admin.Senha == hash;
+    }
+
+    private string HashSenha(string senha)
+    {
+        using var sha256 = SHA256.Create();
+        var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(senha));
+        return Convert.ToBase64String(bytes);
+    }
+
+    
 }
