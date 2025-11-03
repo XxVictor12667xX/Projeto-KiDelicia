@@ -29,7 +29,8 @@ public class AdministradorRepository: IAdministradorRepository
         }
 
     public async Task AddAdministrador(Administrador administrador)
-    {
+    {   
+        administrador.Senha = HashSenha(administrador.Senha );
         await _context.Administradores.AddAsync(administrador);
         await _context.SaveChangesAsync();
     }

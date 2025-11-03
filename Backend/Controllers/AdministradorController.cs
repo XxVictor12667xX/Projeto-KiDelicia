@@ -1,4 +1,6 @@
 using Backend.Models;
+using KiDelicia.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -9,13 +11,16 @@ namespace KiDelicia.Controllers
     public class AdministradorController : ControllerBase
     {
         private readonly IAdministradorRepository _adminRepository;
+        private readonly TokenService _tokenService;
 
-        public AdministradorController(IAdministradorRepository adminRepository)
+
+        public AdministradorController(IAdministradorRepository adminRepository, TokenService tokenService)
         {
             _adminRepository = adminRepository;
+            _tokenService = tokenService;
         }
 
-        
+ 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] Administrador adminLogin)
         {
@@ -26,10 +31,18 @@ namespace KiDelicia.Controllers
             if (!valido)
                 return Unauthorized("Credenciais inválidas.");
 
-            return Ok("Login realizado com sucesso.");
+            var admin = await _adminRepository.GetByName(adminLogin.Email);
+            var token = _tokenService.GenerateToken(admin!);
+
+            return Ok(new
+            {
+                message = "Login realizado com sucesso.",
+                token
+            });
         }
 
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllAdministradores()
         {
@@ -42,6 +55,7 @@ namespace KiDelicia.Controllers
         }
 
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAdministradorById(int id)
         {
@@ -52,6 +66,7 @@ namespace KiDelicia.Controllers
             return Ok(admin);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateAdministrador([FromBody] Administrador admin)
         {
@@ -69,6 +84,7 @@ namespace KiDelicia.Controllers
             }
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateAdministrador(int id, [FromBody] Administrador admin)
         {
@@ -90,6 +106,7 @@ namespace KiDelicia.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAdministrador(int id)
         {

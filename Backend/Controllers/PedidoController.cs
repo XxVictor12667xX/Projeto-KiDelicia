@@ -1,5 +1,6 @@
 
 using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -13,6 +14,7 @@ public class PedidoController : ControllerBase
         _pedidoRepository = pedidoRepository;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAllPedidos()
     {
@@ -32,6 +34,7 @@ public class PedidoController : ControllerBase
 
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetPedidoById(int id)
     {
@@ -51,6 +54,8 @@ public class PedidoController : ControllerBase
 
     }
 
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreatePedido([FromBody] Pedido pedido)
     {
@@ -71,6 +76,7 @@ public class PedidoController : ControllerBase
 
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdatePedido(int id, [FromBody] Pedido pedido)
     {
@@ -96,7 +102,7 @@ public class PedidoController : ControllerBase
         }
     }
 
-
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePedido(int id)
     {

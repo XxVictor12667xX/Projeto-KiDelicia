@@ -1,4 +1,5 @@
 using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -28,6 +29,7 @@ namespace KiDelicia.Controllers
             return Ok(clientes);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetClienteById(int id)
         {
@@ -41,6 +43,8 @@ namespace KiDelicia.Controllers
             return Ok(cliente);
         }
 
+
+        [Authorize]
         [HttpGet("nome/{nome}")]
         public async Task<IActionResult> GetClienteByNome(string nome)
         {
@@ -54,6 +58,7 @@ namespace KiDelicia.Controllers
             return Ok(cliente);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateCliente([FromBody] Cliente cliente)
         {

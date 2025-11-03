@@ -1,5 +1,6 @@
 
 using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -53,6 +54,8 @@ public class ProdutoController : ControllerBase
 
     }
 
+
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateProduto([FromBody] Produto produto)
     {
@@ -72,6 +75,8 @@ public class ProdutoController : ControllerBase
         }
     }
 
+
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateProduto(int id, [FromBody] Produto produto)
     {
@@ -97,6 +102,7 @@ public class ProdutoController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProduto(int id)
     {
