@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using Backend.Dtos;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,9 @@ public class AdministradorRepository: IAdministradorRepository
     }
 
     public async Task<IEnumerable<Administrador>> GetAllAdministradores()
-    {
+    {   
+
+
         return await _context.Administradores.ToListAsync();
     }
 
@@ -22,10 +25,10 @@ public class AdministradorRepository: IAdministradorRepository
         return await _context.Administradores.FindAsync(id);
     }
 
-    public async Task<Administrador?> GetByName(string nome)
+    public async Task<Administrador?> GetByEmail(string email)
         {
             return await _context.Administradores
-                .FirstOrDefaultAsync(a => a.Nome.ToLower() == nome.ToLower());
+                .FirstOrDefaultAsync(a => a.Email.ToLower() == email.ToLower());
         }
 
     public async Task AddAdministrador(Administrador administrador)
@@ -54,7 +57,7 @@ public class AdministradorRepository: IAdministradorRepository
 
     public async Task<bool> ValidarLogin(string email, string senha)
         {
-            var admin = await GetByName(email);
+            var admin = await GetByEmail(email);
             if (admin == null) return false;
 
             var hash = HashSenha(senha);

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Backend.Models;
 
@@ -11,14 +12,17 @@ public class Itens
     [Required]
     public int PedidoId { get; set; }
 
+    [JsonIgnore]
     [ForeignKey("PedidoId")]
-    public Pedido Pedido { get; set; }
+    public Pedido? Pedido { get; set; }
 
     [Required]
     public int ProdutoId { get; set; }
 
+
+    
     [ForeignKey("ProdutoId")]
-    public Produto Produto { get; set; }
+    public Produto? Produto { get; set; }
 
     [Required]
     public int Quantidade { get; set; }
@@ -26,6 +30,4 @@ public class Itens
     [Column(TypeName = "decimal(10,2)")]
     public decimal PrecoUnitario { get; set; }
 
-    [NotMapped]
-    public decimal Subtotal => Quantidade * PrecoUnitario;
 }

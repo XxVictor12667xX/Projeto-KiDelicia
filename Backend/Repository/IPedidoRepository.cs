@@ -1,3 +1,4 @@
+using Backend.Dtos;
 using Backend.Models;
 
 public interface IPedidoRepository

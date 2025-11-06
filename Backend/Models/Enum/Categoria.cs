@@ -1,7 +1,7 @@
 namespace Backend.Models.Enum;
 public enum Categoria
 {
-    Hamburgeur,
+    Hamburguer,
     pizza,
     Bebida,
     Acompanhamento

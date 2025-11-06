@@ -1,21 +1,29 @@
 
+using Backend.Dtos;
 using Backend.Models;
+using Backend.Models.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class PedidoController : ControllerBase
 {
     private readonly IPedidoRepository _pedidoRepository;
+    private readonly IClienteRepository _clienteRepository;
+    private readonly IProdutoRepository _produtoRepository;
 
-    public PedidoController(IPedidoRepository pedidoRepository)
+    public PedidoController(IPedidoRepository pedidoRepository, IClienteRepository clienteRepository, IProdutoRepository produtoRepository)
     {
         _pedidoRepository = pedidoRepository;
+        _clienteRepository = clienteRepository;
+        _produtoRepository = produtoRepository;
     }
 
-    [Authorize]
+    
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAllPedidos()
     {
 
@@ -34,8 +42,9 @@ public class PedidoController : ControllerBase
 
     }
 
-    [Authorize]
+    
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetPedidoById(int id)
     {
 
@@ -55,32 +64,64 @@ public class PedidoController : ControllerBase
     }
 
 
-    [Authorize]
     [HttpPost]
-    public async Task<IActionResult> CreatePedido([FromBody] Pedido pedido)
+    [Authorize]
+    public async Task<IActionResult> CreatePedido([FromBody] PedidoCreateDto dto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         try
         {
+            var cliente = await _clienteRepository.GetClienteById(dto.ClienteId);
+            if (cliente == null)
+                return BadRequest($"Cliente com ID {dto.ClienteId} não encontrado.");
+
+            var pedido = new Pedido
+            {
+                ClienteId = dto.ClienteId,
+                DataHora = DateTime.UtcNow,
+                Status = PedidoStatus.Recebido,
+                Itens = new List<Itens>()
+            };
+
+            decimal total = 0;
+
+            foreach (var itemDto in dto.Itens)
+            {
+                var produto = await _produtoRepository.GetProdutoById(itemDto.ProdutoId);
+                if (produto == null)
+                    return BadRequest($"Produto com ID {itemDto.ProdutoId} não encontrado.");
+
+                var item = new Itens
+                {
+                    ProdutoId = produto.Id,
+                    Quantidade = itemDto.Quantidade,
+                    PrecoUnitario = produto.Preco
+                };
+
+                total += produto.Preco * itemDto.Quantidade;
+                pedido.Itens.Add(item);
+            }
+
+            pedido.ValorTotal = total;
+
             await _pedidoRepository.AddPedido(pedido);
+
             return CreatedAtAction(nameof(GetPedidoById), new { id = pedido.Id }, pedido);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"Erro ao criar o pedido: {ex.Message}");
+            return StatusCode(500, $"Erro interno ao criar o pedido: {ex.InnerException?.Message ?? ex.Message}");
         }
+
+
 
     }
 
-    [Authorize]
+    
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePedido(int id, [FromBody] Pedido pedido)
+    [Authorize]
+    public async Task<IActionResult> UpdatePedido(int id, [FromBody] PedidoUpdateDto update)
     {
-        if (id != pedido.Id)
+        if (id != update.Id)
         {
             return BadRequest("O ID informado não corresponde ao pedido enviado.");
         }
@@ -93,7 +134,13 @@ public class PedidoController : ControllerBase
 
         try
         {
-            await _pedidoRepository.UpdatePedido(pedido);
+            
+            pedidoExistente.Status = update.Status;           
+            pedidoExistente.DataHora = DateTime.UtcNow;
+            
+
+
+            await _pedidoRepository.UpdatePedido(pedidoExistente);
             return Ok("Pedido atualizado com sucesso.");
         }
         catch (Exception ex)
@@ -102,8 +149,9 @@ public class PedidoController : ControllerBase
         }
     }
 
-    [Authorize]
+    
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeletePedido(int id)
     {
         var pedidoExistente = await _pedidoRepository.GetPedidoById(id);

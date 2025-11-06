@@ -16,7 +16,7 @@ public class Pedido
     [ForeignKey("ClienteId")]
     public Cliente Cliente { get; set; }
 
-    public DateTime DataHora { get; set; } = DateTime.Now;
+    public DateTime DataHora { get; set; } = DateTime.UtcNow;
 
     public PedidoStatus Status { get; set; } = PedidoStatus.Recebido;
 

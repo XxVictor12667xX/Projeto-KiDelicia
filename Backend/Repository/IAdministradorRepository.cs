@@ -1,3 +1,4 @@
+using Backend.Dtos;
 using Backend.Models;
 
 public interface IAdministradorRepository
@@ -5,7 +6,7 @@ public interface IAdministradorRepository
     Task<IEnumerable<Administrador>> GetAllAdministradores();
     Task<Administrador?> GetAdministradorById(int id);
 
-    Task<Administrador?> GetByName(string nome);
+    Task<Administrador?> GetByEmail(string email);
 
     Task AddAdministrador(Administrador administrador);
     Task UpdateAdministrador(Administrador administrador);

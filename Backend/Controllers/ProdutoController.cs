@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class ProdutoController : ControllerBase
 {
 
@@ -36,6 +36,7 @@ public class ProdutoController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetProdutoById(int id)
     {
 
@@ -55,8 +56,9 @@ public class ProdutoController : ControllerBase
     }
 
 
-    [Authorize]
+    
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateProduto([FromBody] Produto produto)
     {
         if (!ModelState.IsValid)
@@ -76,8 +78,9 @@ public class ProdutoController : ControllerBase
     }
 
 
-    [Authorize]
+    
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> UpdateProduto(int id, [FromBody] Produto produto)
     {
         if (id != produto.Id)
@@ -92,8 +95,16 @@ public class ProdutoController : ControllerBase
         }
 
         try
-        {
-            await _produtoRepository.UpdateProduto(produto);
+        {   
+
+            produtoExistente.Nome = produto.Nome;
+            produtoExistente.Descricao = produto.Descricao;
+            produtoExistente.CategoriaProduto = produto.CategoriaProduto;
+            produtoExistente.Preco = produto.Preco;
+            produtoExistente.UrlImagem = produto.UrlImagem;
+
+
+            await _produtoRepository.UpdateProduto(produtoExistente);
             return Ok("Produto atualizado com sucesso.");
         }
         catch (Exception ex)
@@ -102,8 +113,9 @@ public class ProdutoController : ControllerBase
         }
     }
 
-    [Authorize]
+    
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteProduto(int id)
     {
         var produtoExistente = await _produtoRepository.GetProdutoById(id);

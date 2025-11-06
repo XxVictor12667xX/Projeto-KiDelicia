@@ -1,3 +1,4 @@
+using Backend.Dtos;
 using Backend.Models;
 using KiDelicia.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace KiDelicia.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class AdministradorController : ControllerBase
     {
         private readonly IAdministradorRepository _adminRepository;
@@ -22,7 +23,7 @@ namespace KiDelicia.Controllers
 
  
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] Administrador adminLogin)
+        public async Task<IActionResult> Login([FromBody] AdministradorLoginDto adminLogin)
         {
             if (string.IsNullOrWhiteSpace(adminLogin.Email) || string.IsNullOrWhiteSpace(adminLogin.Senha))
                 return BadRequest("Email e senha são obrigatórios.");
@@ -31,19 +32,22 @@ namespace KiDelicia.Controllers
             if (!valido)
                 return Unauthorized("Credenciais inválidas.");
 
-            var admin = await _adminRepository.GetByName(adminLogin.Email);
+            var admin = await _adminRepository.GetByEmail(adminLogin.Email);
             var token = _tokenService.GenerateToken(admin!);
 
-            return Ok(new
+            return Ok(new AdministradorResponseDto
             {
-                message = "Login realizado com sucesso.",
-                token
+                Id = admin.Id,
+                Nome = admin.Nome,
+                Email = admin.Email,
+                Token = token
             });
         }
 
 
-        [Authorize]
+        
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllAdministradores()
         {
             var admins = await _adminRepository.GetAllAdministradores();
@@ -55,8 +59,9 @@ namespace KiDelicia.Controllers
         }
 
 
-        [Authorize]
+        
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetAdministradorById(int id)
         {
             var admin = await _adminRepository.GetAdministradorById(id);
@@ -66,8 +71,9 @@ namespace KiDelicia.Controllers
             return Ok(admin);
         }
 
-        [Authorize]
+        
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateAdministrador([FromBody] Administrador admin)
         {
             if (!ModelState.IsValid)
@@ -84,8 +90,9 @@ namespace KiDelicia.Controllers
             }
         }
 
-        [Authorize]
+        
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateAdministrador(int id, [FromBody] Administrador admin)
         {
             if (id != admin.Id)
@@ -96,8 +103,12 @@ namespace KiDelicia.Controllers
                 return NotFound("Administrador não encontrado para atualização.");
 
             try
-            {
-                await _adminRepository.UpdateAdministrador(admin);
+            {   
+                adminExistente.Nome = admin.Nome;
+                adminExistente.Email = admin.Email;
+                adminExistente.Senha = admin.Senha;
+
+                await _adminRepository.UpdateAdministrador(adminExistente);
                 return Ok("Administrador atualizado com sucesso.");
             }
             catch (Exception ex)
@@ -106,8 +117,9 @@ namespace KiDelicia.Controllers
             }
         }
 
-        [Authorize]
+        
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteAdministrador(int id)
         {
             var adminExistente = await _adminRepository.GetAdministradorById(id);

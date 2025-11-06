@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace KiDelicia.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class ClienteController : ControllerBase
     {
         private readonly IClienteRepository _clienteRepository;
@@ -17,6 +17,7 @@ namespace KiDelicia.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllClientes()
         {
             var clientes = await _clienteRepository.GetAllClientes();
@@ -29,8 +30,9 @@ namespace KiDelicia.Controllers
             return Ok(clientes);
         }
 
-        [Authorize]
+        
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetClienteById(int id)
         {
             var cliente = await _clienteRepository.GetClienteById(id);
@@ -44,8 +46,9 @@ namespace KiDelicia.Controllers
         }
 
 
-        [Authorize]
+        
         [HttpGet("nome/{nome}")]
+        [Authorize]
         public async Task<IActionResult> GetClienteByNome(string nome)
         {
             var cliente = await _clienteRepository.GetClienteByName(nome);
@@ -58,8 +61,9 @@ namespace KiDelicia.Controllers
             return Ok(cliente);
         }
 
-        [Authorize]
+        
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> CreateCliente([FromBody] Cliente cliente)
         {
             if (!ModelState.IsValid)
