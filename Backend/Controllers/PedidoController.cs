@@ -32,7 +32,7 @@ public class PedidoController : ControllerBase
         if (pedidos is null)
         {
 
-            return NotFound("Nenhum pedido encontrado.");
+            return NotFound(new { erro = "Nenhum pedido encontrado." });
         }
         else
         {
@@ -53,7 +53,7 @@ public class PedidoController : ControllerBase
         if (pedido is null)
         {
 
-            return NotFound("Pedido não encontrado.");
+            return NotFound(new { erro = "Pedido não encontrado." });
         }
         else
         {
@@ -72,7 +72,7 @@ public class PedidoController : ControllerBase
         {
             var cliente = await _clienteRepository.GetClienteById(dto.ClienteId);
             if (cliente == null)
-                return BadRequest($"Cliente com ID {dto.ClienteId} não encontrado.");
+                return BadRequest(new { erro=$"Cliente com ID {dto.ClienteId} não encontrado." });
 
             var pedido = new Pedido
             {
@@ -88,7 +88,7 @@ public class PedidoController : ControllerBase
             {
                 var produto = await _produtoRepository.GetProdutoById(itemDto.ProdutoId);
                 if (produto == null)
-                    return BadRequest($"Produto com ID {itemDto.ProdutoId} não encontrado.");
+                    return BadRequest(new { erro = $"Produto com ID {itemDto.ProdutoId} não encontrado." });
 
                 var item = new Itens
                 {
@@ -109,7 +109,7 @@ public class PedidoController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"Erro interno ao criar o pedido: {ex.InnerException?.Message ?? ex.Message}");
+            return StatusCode(500, new { erro = $"Erro interno ao criar o pedido: {ex.InnerException?.Message ?? ex.Message}" });
         }
 
 
@@ -123,13 +123,13 @@ public class PedidoController : ControllerBase
     {
         if (id != update.Id)
         {
-            return BadRequest("O ID informado não corresponde ao pedido enviado.");
+            return BadRequest(new { erro = "O ID informado não corresponde ao pedido enviado." });
         }
 
         var pedidoExistente = await _pedidoRepository.GetPedidoById(id);
         if (pedidoExistente is null)
         {
-            return NotFound("Produto não encontrado para atualização.");
+            return NotFound(new { erro = "Produto não encontrado para atualização." });
         }
 
         try
@@ -141,11 +141,11 @@ public class PedidoController : ControllerBase
 
 
             await _pedidoRepository.UpdatePedido(pedidoExistente);
-            return Ok("Pedido atualizado com sucesso.");
+            return Ok(new { menssagem = "Pedido atualizado com sucesso." });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"Erro ao atualizar o pedido: {ex.Message}");
+            return StatusCode(500, new { erro = $"Erro ao atualizar o pedido: {ex.Message}" });
         }
     }
 
@@ -157,17 +157,17 @@ public class PedidoController : ControllerBase
         var pedidoExistente = await _pedidoRepository.GetPedidoById(id);
         if (pedidoExistente is null)
         {
-            return NotFound("Pedido não encontrado para exclusão.");
+            return NotFound(new { erro = "Pedido não encontrado para exclusão." });
         }
 
         try
         {
             await _pedidoRepository.DeletePedido(id);
-            return Ok("Pedido excluído com sucesso.");
+            return Ok(new { menssagem = "Pedido deletado com sucesso." });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"Erro ao excluir o pedido: {ex.Message}");
+            return StatusCode(500, new { erro = $"Erro ao excluir o pedido: {ex.Message}" });
         }
     }
 }

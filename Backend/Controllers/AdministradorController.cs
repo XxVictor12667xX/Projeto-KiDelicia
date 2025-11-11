@@ -26,11 +26,11 @@ namespace KiDelicia.Controllers
         public async Task<IActionResult> Login([FromBody] AdministradorLoginDto adminLogin)
         {
             if (string.IsNullOrWhiteSpace(adminLogin.Email) || string.IsNullOrWhiteSpace(adminLogin.Senha))
-                return BadRequest("Email e senha são obrigatórios.");
+                return BadRequest(new { erro = "Email e senha são obrigatórios." });
 
             var valido = await _adminRepository.ValidarLogin(adminLogin.Email, adminLogin.Senha);
             if (!valido)
-                return Unauthorized("Credenciais inválidas.");
+                return Unauthorized(new { erro="Credenciais inválidas." });
 
             var admin = await _adminRepository.GetByEmail(adminLogin.Email);
             var token = _tokenService.GenerateToken(admin!);
@@ -53,7 +53,7 @@ namespace KiDelicia.Controllers
             var admins = await _adminRepository.GetAllAdministradores();
 
             if (admins is null || !admins.Any())
-                return NotFound("Nenhum administrador encontrado.");
+                return NotFound(new { erro = "Nenhum administrador encontrado." });
 
             return Ok(admins);
         }
@@ -66,7 +66,7 @@ namespace KiDelicia.Controllers
         {
             var admin = await _adminRepository.GetAdministradorById(id);
             if (admin is null)
-                return NotFound("Administrador não encontrado.");
+                return NotFound(new { erro = "Administrador não encontrado." });
 
             return Ok(admin);
         }
@@ -86,7 +86,7 @@ namespace KiDelicia.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao criar administrador: {ex.Message}");
+                return StatusCode(500, new { erro = $"Erro ao criar administrador: {ex.Message}" });
             }
         }
 
@@ -96,11 +96,11 @@ namespace KiDelicia.Controllers
         public async Task<IActionResult> UpdateAdministrador(int id, [FromBody] Administrador admin)
         {
             if (id != admin.Id)
-                return BadRequest("O ID informado não corresponde ao administrador enviado.");
+                return BadRequest(new { erro = "O ID informado não corresponde ao administrador enviado." });
 
             var adminExistente = await _adminRepository.GetAdministradorById(id);
             if (adminExistente is null)
-                return NotFound("Administrador não encontrado para atualização.");
+                return NotFound(new { erro = "Administrador não encontrado para atualização." });
 
             try
             {   
@@ -109,11 +109,11 @@ namespace KiDelicia.Controllers
                 adminExistente.Senha = admin.Senha;
 
                 await _adminRepository.UpdateAdministrador(adminExistente);
-                return Ok("Administrador atualizado com sucesso.");
+                return Ok(new { menssagem = "Administrador atualizado com sucesso." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao atualizar administrador: {ex.Message}");
+                return StatusCode(500, new { erro = $"Erro ao atualizar administrador: {ex.Message}" });
             }
         }
 
@@ -124,16 +124,16 @@ namespace KiDelicia.Controllers
         {
             var adminExistente = await _adminRepository.GetAdministradorById(id);
             if (adminExistente is null)
-                return NotFound("Administrador não encontrado para exclusão.");
+                return NotFound(new { erro = "Administrador não encontrado para exclusão." });
 
             try
             {
                 await _adminRepository.DeleteAdministrador(id);
-                return Ok("Administrador excluído com sucesso.");
+                return Ok(new { menssagem = "Administrador excluído com sucesso." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro ao excluir administrador: {ex.Message}");
+                return StatusCode(500, new { erro = $"Erro ao excluir administrador: {ex.Message}" });
             }
         }
     }
